@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TRAVELKU - Pembayaran Tiket Pesawat</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#f8f8f8; margin:0; padding:0; }
+  .container {
+    max-width: 400px; margin: 40px auto; background: white; padding: 25px; border-radius: 12px; box-shadow:0 0 15px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  h3 { color: #4119d0; margin-bottom: 20px; }
+  select, button {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 12px 0;
+    border-radius: 8px;
+    border: 1.5px solid #ddd;
+    font-size: 16px;
+  }
+  select:focus {
+    border-color: #4119d0;
+    outline: none;
+  }
+  button {
+    background:#4119d0; color:#fff; border:none; cursor:pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+  }
+  button:hover:not(:disabled) {
+    background:#2c0d8d;
+  }
+  button:disabled {
+    background:#a3a3a3;
+    cursor: not-allowed;
+  }
+  .info {
+    font-weight: 600;
+    color: #1944d0;
+  }
+  #msg {
+    margin-top: 15px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h3>Pembayaran Tiket Pesawat</h3>
+  <div id="infoPembayaran" class="info"></div>
+
+  <select id="metodePembayaran" required>
+    <option value="" disabled selected>Pilih Metode Pembayaran</option>
+    <option value="transfer">Transfer Bank</option>
+    <option value="e-wallet">E-Wallet (OVO, GoPay, Dana)</option>
+    <option value="kartu-kredit">Kartu Kredit/Debit</option>
+  </select>
+
+  <button id="bayarBtn" disabled>Bayar Sekarang</button>
+  <div id="msg"></div>
+</div>
+
+<script>
+  const registrasi = JSON.parse(localStorage.getItem('registrasiPesawat'));
+  const infoDiv = document.getElementById('infoPembayaran');
+  const bayarBtn = document.getElementById('bayarBtn');
+  const msgDiv = document.getElementById('msg');
+  const metodeSelect = document.getElementById('metodePembayaran');
+
+  if (!registrasi) {
+    infoDiv.innerHTML = '<span style="color:red;">Data registrasi tidak ditemukan. Silakan ulangi proses pemesanan.</span>';
+    bayarBtn.style.display = 'none';
+    metodeSelect.style.display = 'none';
+  } else {
+    infoDiv.innerHTML = `Maskapai: <strong>${registrasi.pesawat.maskapai}</strong><br>
+                         Harga: <strong>${registrasi.pesawat.harga}</strong>`;
+  }
+
+  metodeSelect.addEventListener('change', () => {
+    bayarBtn.disabled = metodeSelect.value === "";
+    msgDiv.textContent = '';
+  });
+
+  bayarBtn.addEventListener('click', () => {
+    bayarBtn.disabled = true;
+    metodeSelect.disabled = true;
+    msgDiv.textContent = 'Memproses pembayaran...';
+
+    // Simulasi delay pembayaran 2 detik
+    setTimeout(() => {
+      msgDiv.innerHTML = '<span style="color:green; font-weight:bold;">Pembayaran berhasil!</span>';
+
+      // Simpan status pembayaran
+      localStorage.setItem('statusPembayaranPesawat', 'success');
+
+      // Redirect ke halaman bukti setelah 2 detik
+      setTimeout(() => {
+        window.location.href = 'buktiPemesananPesawat.html';
+      }, 2000);
+    }, 2000);
+  });
+</script>
+
+</body>
+</html>

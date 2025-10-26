@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TRAVELKU - Bukti Pemesanan Tiket Pesawat</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#f8f8f8; margin:0; padding:0; }
+  .container {
+    max-width: 500px; margin: 40px auto; background: white; padding: 25px; border-radius: 12px; box-shadow:0 0 15px rgba(0,0,0,0.1);
+  }
+  h3 { color: #4119d0; text-align:center; margin-bottom: 20px; }
+  .info {
+    margin-bottom: 20px; line-height: 1.6; color: #2e3a59;
+  }
+  button {
+    background:#1944d0; color:#fff; border:none; padding:12px 20px; border-radius: 6px; font-size: 16px; cursor:pointer;
+    display: block;
+    margin: 0 auto;
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background:#102aa5;
+  }
+  .error {
+    color: red;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h3>Bukti Pemesanan Tiket Pesawat</h3>
+  <div id="buktiInfo" class="info"></div>
+  <button id="btnCetak">Cetak / Download PDF</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  const { jsPDF } = window.jspdf;
+  const buktiInfoDiv = document.getElementById('buktiInfo');
+  const btnCetak = document.getElementById('btnCetak');
+
+  const registrasi = JSON.parse(localStorage.getItem('registrasiPesawat'));
+  const statusPembayaran = localStorage.getItem('statusPembayaranPesawat');
+
+  if (!registrasi || statusPembayaran !== 'success') {
+    buktiInfoDiv.innerHTML = '<p class="error">Data bukti pemesanan tidak ditemukan atau pembayaran belum selesai.</p>';
+    btnCetak.style.display = 'none';
+  } else {
+    buktiInfoDiv.innerHTML = `
+      <strong>Nama Pemesan:</strong> ${registrasi.nama}<br>
+      <strong>Email:</strong> ${registrasi.email}<br>
+      <strong>Telepon:</strong> ${registrasi.telepon}<br>
+      <strong>Catatan:</strong> ${registrasi.catatan || '-'}<br><br>
+
+      <strong>Maskapai:</strong> ${registrasi.pesawat.maskapai}<br>
+      <strong>Kode Penerbangan:</strong> ${registrasi.pesawat.kode}<br>
+      <strong>Keberangkatan:</strong> ${registrasi.pesawat.kotaAsal} (${registrasi.pesawat.bandaraAsal})<br>
+      <strong>Tujuan:</strong> ${registrasi.pesawat.kotaTujuan} (${registrasi.pesawat.bandaraTujuan})<br>
+      <strong>Tanggal:</strong> ${registrasi.pesawat.tanggal}<br>
+      <strong>Harga:</strong> ${registrasi.pesawat.harga}<br>
+    `;
+  }
+
+  btnCetak.addEventListener('click', () => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(22);
+    doc.setTextColor("#4119d0");
+    doc.setFont("helvetica", "bold");
+    doc.text("Bukti Pemesanan Tiket Pesawat", 105, 20, null, null, "center");
+
+    doc.setDrawColor("#4119d0");
+    doc.setLineWidth(0.8);
+    doc.line(20, 25, 190, 25);
+
+    doc.setFontSize(14);
+    doc.setTextColor("#2e3a59");
+    doc.setFont("helvetica", "normal");
+    let y = 40;
+
+    function addLabelValue(label, value) {
+      doc.setFont("helvetica", "bold");
+      doc.text(`${label}`, 20, y);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${value}`, 70, y);
+      y += 10;
+    }
+
+    addLabelValue("Nama Pemesan", registrasi.nama);
+    addLabelValue("Email", registrasi.email);
+    addLabelValue("Telepon", registrasi.telepon);
+    addLabelValue("Catatan", registrasi.catatan || '-');
+
+    y += 8;
+    doc.setDrawColor("#d1d7e0");
+    doc.setLineWidth(0.5);
+    doc.line(20, y, 190, y);
+    y += 12;
+
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor("#4119d0");
+    doc.setFontSize(16);
+    doc.text("Detail Penerbangan", 20, y);
+    y += 10;
+
+    doc.setFontSize(14);
+    doc.setTextColor("#2e3a59");
+    doc.setFont("helvetica", "normal");
+
+    addLabelValue("Maskapai", registrasi.pesawat.maskapai);
+    addLabelValue("Kode Penerbangan", registrasi.pesawat.kode);
+    addLabelValue("Keberangkatan", `${registrasi.pesawat.kotaAsal} (${registrasi.pesawat.bandaraAsal})`);
+    addLabelValue("Tujuan", `${registrasi.pesawat.kotaTujuan} (${registrasi.pesawat.bandaraTujuan})`);
+    addLabelValue("Tanggal", registrasi.pesawat.tanggal);
+    addLabelValue("Harga", registrasi.pesawat.harga);
+
+    // Footer
+    doc.setFontSize(10);
+    doc.setTextColor("#999");
+    doc.text("Terima kasih telah melakukan pemesanan tiket di TRAVELKU.", 105, 280, null, null, "center");
+
+    doc.save("Bukti_Pemesanan_Tiket_Pesawat.pdf");
+  });
+</script>
+
+</body>
+</html>

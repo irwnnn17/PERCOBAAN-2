@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TRAVELKU - Registrasi Tiket Pesawat</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#f0f4f8; margin:0; padding:0; }
+  .container {
+    max-width: 450px; margin: 50px auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  }
+  h2 {
+    color: #4119d0;
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  label {
+    display: block;
+    margin: 15px 0 6px;
+    font-weight: bold;
+    color: #333;
+  }
+  input, textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1.8px solid #ddd;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+  }
+  input:focus, textarea:focus {
+    border-color: #4119d0;
+    outline: none;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+  button {
+    margin-top: 25px;
+    width: 100%;
+    padding: 14px 0;
+    font-size: 18px;
+    background-color: #4119d0;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background-color: #2c0d8d;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Registrasi Penumpang Tiket Pesawat</h2>
+  <form id="formRegistrasi">
+    <label for="nama">Nama Lengkap</label>
+    <input type="text" id="nama" required placeholder="Nama lengkap sesuai KTP" />
+
+    <label for="email">Email</label>
+    <input type="email" id="email" required placeholder="email@domain.com" />
+
+    <label for="telepon">Nomor Telepon</label>
+    <input type="tel" id="telepon" required placeholder="08123456789" />
+
+    <label for="catatan">Catatan (opsional)</label>
+    <textarea id="catatan" placeholder="Masukkan catatan khusus jika ada..."></textarea>
+
+    <button type="submit">Lanjut ke Pembayaran</button>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('formRegistrasi');
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+
+    // Ambil data tiket pesawat dari localStorage hasil pemesanan sebelumnya
+    const tiketPesawat = JSON.parse(localStorage.getItem('tiketPesawatDipilih'));
+    if (!tiketPesawat) {
+      alert('Data tiket pesawat belum tersedia. Silakan lakukan pemesanan tiket terlebih dahulu.');
+      window.location.href = 'pesanTiketPesawat.html'; // ganti dengan halaman pemesanan tiket pesawat kamu
+      return;
+    }
+
+    // Gabungkan data penumpang dengan data tiket
+    const registrasiPesawat = {
+      nama: form.nama.value.trim(),
+      email: form.email.value.trim(),
+      telepon: form.telepon.value.trim(),
+      catatan: form.catatan.value.trim(),
+      pesawat: tiketPesawat // data tiket yang sudah dipilih
+    };
+
+    // Simpan data registrasi lengkap ke localStorage
+    localStorage.setItem('registrasiPesawat', JSON.stringify(registrasiPesawat));
+    localStorage.removeItem('statusPembayaranPesawat'); // reset status pembayaran jika ada
+
+    // Redirect ke halaman pembayaran tiket pesawat
+    window.location.href = 'pembayaranPesawat.html'; 
+    // ganti sesuai nama file pembayaran kamu
+  });
+</script>
+
+</body>
+</html>

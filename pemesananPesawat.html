@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TRAVELKU - Pesan Tiket Pesawat dengan Autocomplete</title>
+  <style>
+    /* [Gaya CSS tidak diubah, tetap sama seperti versi Anda sebelumnya] */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f8f8;
+        margin: 0; padding: 0;
+    }
+    .container {
+        max-width: 400px;
+        margin: 20px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    .header {
+        background: #4119d0;
+        padding: 15px;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    .logo {
+        width: 30px; height: 30px;
+    }
+    .input-group {
+        margin: 15px 0;
+        text-align: left;
+        position: relative;
+    }
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+    .search-btn {
+        width: 100%;
+        background: #1944d0;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .ticket-result {
+        margin-top: 20px;
+        text-align: left;
+        background: #f0f0ff;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .ticket-card {
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: white;
+    }
+    .ticket-card h4 {
+        margin: 0 0 5px;
+        color: #1944d0;
+    }
+    .ticket-card p {
+        margin: 5px 0;
+        font-size: 14px;
+    }
+    .ticket-card button {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .help-section {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .help-section a {
+        display: inline-block;
+        background: #0056b3;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+    .autocomplete-list {
+        position: absolute;
+        border: 1px solid #ccc;
+        border-top: none;
+        max-height: 150px;
+        overflow-y: auto;
+        background-color: white;
+        width: 100%;
+        z-index: 10;
+        border-radius: 0 0 5px 5px;
+    }
+    .autocomplete-list div {
+        padding: 8px;
+        cursor: pointer;
+    }
+    .autocomplete-list div:hover {
+        background-color: #1944d0;
+        color: white;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <img src="LOGO TRAVEL KU.jpg" alt="Logo" class="logo" />
+  <span>TRAVELKU</span>
+</div>
+
+<div class="container">
+  <h3>Tiket Pesawat</h3>
+  <p>Yuk cek dan pesan tiket pesawatmu di sini!</p>
+
+  <div class="input-group">
+    <label for="from">Dari</label>
+    <input type="text" id="from" placeholder="Kota keberangkatan" autocomplete="off" />
+    <div id="from-list" class="autocomplete-list" style="display:none;"></div>
+  </div>
+
+  <div class="input-group">
+    <label for="to">Ke</label>
+    <input type="text" id="to" placeholder="Kota tujuan" autocomplete="off" />
+    <div id="to-list" class="autocomplete-list" style="display:none;"></div>
+  </div>
+
+  <div class="input-group">
+    <label for="date">Tanggal</label>
+    <input type="date" id="date" value="2025-02-26" />
+  </div>
+
+  <button class="search-btn" onclick="bookTicket()">Pesan Sekarang</button>
+
+  <div id="ticket-result" class="ticket-result" style="display:none;"></div>
+</div>
+
+<div class="help-section">
+  <h4>Kamu Butuh Bantuan?</h4>
+  <p>Tanya admin kami di Chat Center.</p>
+  <a href="#">Klik di sini</a>
+</div>
+
+<script>
+  const tickets = [
+    { 
+      from: "Jakarta",
+      to: "Bandung",
+      maskapai: "Garuda Indonesia",
+      harga: "Rp. 500.000",
+      waktu: "08:00 - 09:00",
+      foto: "data:image/png;base64,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"
+    },
+    { 
+      from: "Jakarta",
+      to: "Bandung",
+      maskapai: "Garuda Indonesia",
+      harga: "Rp. 450.000",
+      waktu: "09:00 - 10:00",
+      foto: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZj_Utw6bHKCrmXDeF4CGt3Dg4063cICEa-A&s"
+    },
+
+    { 
+      from: "Jakarta",
+      to: "Bandung",
+      maskapai: "Lion Air",
+      harga: "Rp. 485.000",
+      waktu: "09:10 - 10:00",
+      foto: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVo-Vdi9zUi4bpXly1cU2eDUcgN4g-61jI3w&s"
+    },
+
+
+    {
+      from: "Jakarta",
+      to: "Surabaya",
+      maskapai: "Citilink",
+      harga: "Rp. 650.000",
+      waktu: "10:00 - 12:00",
+      foto: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAABI1BMVEX///8DJWIAjJsAAFbq7vL8/Pzp7PIAIVzGzNsAI2H29vUAAFQ5oKwAE1qz0dcAiZnf3tw9NTWMmK+PwMlutMI4NDJraWcAHF6o0dXq6ukAhpfQzs+lpKRRS0tJQ0Px8fGwra+DgoBFPkAAGV02LzGdm5tgXl4AC1gAAE4AClgAFVwAi514dXa8u7vHx8fb2dp6hqGfqb3V6ezD4OTX2uTDxdUAAF+AfX6NiYpJSEU/PjtYU1NnY2QwLCoTLWYhNWgqQHI7TnlJXIdYapNwfqG1vMfP1N5hcpSWoLQySHZ0haHr9/ROqbScytB5uMUnlp1Tp7U+RX1KUYKHiqthaJSlpb+1udEeJ22Nka9bY5J5fqQyOncAAEQHGGlGTIMtNHclIB7bCSd/AAAOb0lEQVR4nO2bCVfaShvHRyAUEimJChgCJIABwSyylUhwRdAWt6pY2t4u3/9TvM+EJATlevGtPYBnfufUQgiT+edZZ6IIEQgEAoFAIBAIBAKBQCAQCAQCgUAgEAgEAoFAIBAIBAKBQCAQCAQCgUAgEAgEAoFAILyIQDAwhaB1lKbmPbvXYG3bPxWGiZQTKweHR8cnndO1SjfUC8x7qv8vwanU671Qt1sZnh0fhosMw1iiDzprld6bsOskdL1X+XRyWCrmE4lIkfEf73aX1pzPEahXTo+YSHglnCj7E51Kfd4T+ivQ+vmxH0SCymLiuPImLQm2PD8oJkYiI2ehec/mL9E4KSZWMAnmsEvPezZ/h17HH7Y0hpmD8zfqrKFjvyVx5V3poLIEBSS0/e4p4XcHUPA/Hp+cnQ4H3W6vPimkWyyPNIaLh905zfsFhKbQ6Ha7g90OlHxmVPK3maOz864rlPpkh2M4zBwH5zr9PyVQD513PkZK+XA4Hykx4c55b5Rfeo6rQs45XwJXfR4q+HB64MdGCyci/qPdnnW0EknYGovHb6EHoEOn/qKVRMPl4pFV8esndlZdSeQr857fq0BXDmyN4WLxE44+14xh/9nSe+qI7lHRLoZ5/yloDBwXbU8tH/bmPbnXgQI72mYrR3bBV9dcMxbX5j25V4JeK+Vtu0VWziGpHjq1sXQyqhv8Ijpsf3UKFxc3Gxvr65ubtVrfe3LQ6dtA1FEPUWfO23zYKv+hznxEPE/t/SMu168uVq990aSNb/Xq0hXasFMOZFH/Jwp187anvmNOwX70ylFjabZ5qGptc2N1JxmN+qJRULu6PlJJ75adYhg5DKHgSclWHDmC0hjyM/nj0901LxVx3lqeI1C7uk5GfQCI9G3UsH16H0srTqWAFLPGOEYtQ2yCURP5csShGClH/McLblWqehVN+ixA6zo25Boz7mmCqLdSdt51Aij40XFj4OCoyDAlZvFbdOrSNiSITF5Uoac5ijitqb8CCccxar4I6/9dV2I4AQ1PoHe2212CTclNn21HcNeNqkdGmDkLoIoTm2Fml0KhA8eoK/7TSqecyJf82/nb3cZie2t/3fFVX3Jn3SujDAmn7vpm6WMdiW4VWcm7bUGizBwvdM4BjReORF/yuoYCZ84iyuppdid68Yo/MY5Gl8gcy+Xl+mMuN4FadaLg13zRsauCjOI44QRQKOE0PKUOjYJupOJbEA4nMOHt+e1g1TYmuFj17VjVHteI1Q234FNXyR1H43XVkzcTxS6iO05pzK/ghFNyPwsffjzpdDrHZWaRVpP96vurVVwffLjeQ8GvWnmidu246k700iNjxX9Go0reXVKt4fanbHXpZ92gnWJ6R4uk0CKweWPnUKurgRzqNWPyog8Jx23GYREFCcfxVFj8BzvbTGnXu5dDLeI+a9+thdC8XdQQjsakJ+GIHbenwQnnk/sO18L6kjzNqd1Eo06CAU2I2hib8cq7a1PCCecg72wbdxa8OLhAENUunJ4G7FjF9d9JqsnVKqq7y/1EpIuriL3772/Me+ovYZxhoFD0UfXGfRvdRNSu/53T05zSqPvRH8mXmZOFSyvPQ11GfbZvRn2bCK0nnTfJG0g4CXdJhVfGvbXT3UV8QlXb9PK+VqtWvZ1k/2bc04AZxwkn6qtB3nRTjH9xd22q422Ma7viJ33XF+uXVTvJu+G3kwRR/Zuoq3gdebpvZ9dmwelXa5cX10lrjZ/0XYwKfn/DrffJKwpt7rhdHE44H+3yn2CWZ5eYqq6vWlkU+prVS9y6vZ/IotVV11N3IOGch5l8Iu8/WrL9U0ib0ZHVrELRd0RBAwBt29U4Nm8oRHU/nZwu/or+CaBxxy4UN6DxcmzGi753veGrzXum/z8e34Twq157s6g3xa4v9ir+OcarX9y3UR7fBMWuUaPJ9/Oe6B+wGd2xheDSAL7pbE3hhHNhp9wldlOEvHlzte/xTSvhVK+ufdfr/f8eZbFZT060bVFvwnkj1Cay6NioviV3Tw99T4WvIXpjvN54MxK9Ff7K2ie2Op7k5bzn9YrUJto26nJ1Z8e38Wbi0GJcGq3dNmjR35Y+zOXYU99OFp2kOl78Rt9OipnkKpkcCVziTvQ/qG7g1TFeTr1d+tXqm9b3F/lmbbPeLeFCegZwUNMfPtMIBX7cots7cTkeCswMfXcPPxv393cIhW5vBz+GDw/zntOrEvjx8NBDaHjf+FJHuw/fb89CC/ms6g+4vx0Eg2gYRKKIgtRa8Mvb8lEIwaD/4Zd3I3Ip9pVn5huOuOFw3tP4e1S2/+VBFfXinomVjKYhzfLoUpWFx4cEWXoa+rQs//GTUPG+8WF62qReun9ucPuKLLflGU7VtuKPD/H7++zTE5V96YWzmEbw+/S8EnjZY1YlFrfu9yymF7gnCukYN0VhNia9aBIzQbt/rNN4yYNWiTM92ihx/MuujyXTtKOQFseOOVbong9D2AopenyiGz3ut6nJC09e7UmCCZ4xv26/Poy+8+05SY+mbXLq+DKymcu1YW6CkmUVU2KVLL6urED0iUY6o6g5UMg307mc4gSkpRDO0OJm3BpJi2fSKUshlSrk0k0WDyfzTbNg4NnpSiadafIwoFww4xK8b4p48Fwurnkn9vCoB+0y3/ETZLve92Z/VidwHO++0Q1WZJtbMuK51p6sqmg/hz9sbqmILsRSurSXAYUpiReFNCd4FKa4QkFKpbdgjhqX1vRsJifhYEzBiS0W8TFzT5YUToFLcAWWZmMFCpktiddlkcrANVQYUo/HVM/Eet8H3iAcbGOz1btd2z9vZ1Yo5bhHR/h0jOIzOXw1KpbBIdoEM6e4LLxK5Zw4VGNNr8JcAWFxbYQKHDYFTB9OwV/RYnG4YTEdRsNi45ZPK1u6sKWMvp/O2LdYj3mC/NuD6A22wT/gtYF75vN5ZfS7AMOZI1HOZfB8c3t7MftClMnxfGYLTSpsWxMfZxrBmY5tQ5yJ2Vwa6bk9fDQLCtuW/4vpLZrncvhggdNBDx5R4QQB344JhTxXmNJy0sF6kBpuD8CA/i+4TIwCsTHzLwakcvjiPK9zWCGtyQaExFOFdMa69yOFvGQYzUybeqIwk0YqV7AUQhy2OB1/XuAE0VEoiOkMqBBbGZHaa8UFylEoqoaRbZlPFIZuv9/fDX8wPxtiz38Lbts9+W6tFYMzu6lqe6mIFepmK6WpUxWOwtVSKHEFSZBz0xWmRla2FOZYS2FsUqGmq2YLHIJXYrGCMFKoZkxJS3kU4suCHza28V+l3sHP+rcPH0KI+uof0BTudejPsypkWzHWUUil8V2np3kpnXNtKGxhbUJsukIp57HhVIWK0rT7J13hOJ0ChXwuDdrY2Fhh48Fa1g9AR/AnA6/qPz4Hune/toeNyhe8vqB/zbqIouK5lKNQ38Kz8yhErkIITicOZUvNvykUuIyjMG19hd/bEvlHXuoicwaCyJQ4nLZYzuOl57dWKhne3zL3sJ4AF6WgxcnXHyoDq6GhZ19Gadwe7yjkrFuZcb0U7VlmwCkj22paJ2OF+JXETVcopnOadVMkJMdk6ysKGitEplV/nGKvjhSOglfzeGnw4fv5qDUL4DO7219B4BePquCX2dtved9UR5mGMqHqSmYabJgbKZQ5RdeVNChkW5zEa3ACVLSMocnpaZmmlcZfMQUe8pcEYlsaxZsQZnzMVShvNXmRVxVKgzQjxrdsL83BkGbGE4e9et1dCorDf75ZAj2Lw8bPmQXiJmQ/1tpvtUXEFvZ/mxAdrkLK2P8dkyRcioXC7/22loMUr2b2fytsLm4rzGyBQstcfDqN70rrd0xO4Z6Gb8b2Ygp4ga0wuw9dQmpvv9WCjogFQS1Tg+IEt0BL7/+O85mnuRTo3f/42cBG++Fd/Q5f0LfhWfKsvdihH1/Dsysy/uw//lDLM4Y45UxnHJr3nPh0yMkFRO9DeWJ5v1y/xTkNqjccDNx39HD7duLe95il369pNAb2AoJ6GEItPJ/8+PZlTrqIBAfD0N3oJdUbNB7tGDT+WXoTQoF4Zn1E/7h7hSsIadM01ezEMcqEpGrtwEiC+mTHBmhD96CNt0N4Y9rIkv6HU6N+ztyyPTsMMjSky1Yr7yzGpQLM3qrYCo0zonXYyYzwT5Pgh6y6IwiS8zHl/KCt/PpHDxipr19eadc0ziNJlRUeCUbTuu10QWjCwoKSZamNZFZNNTVYnRsS/kw2mqxewAv6Ni8JhiIizZAVlm0aMtI0eIVHEZBhGJSMVEM2ZmwrA0+ryOfXEihC0wLz0VJ8E7pXfCQliQWwi27yvEE11TgvKqhNgz3BuinEx5HV5mRQEzSoLPR2imiKKKuDHEEW4X2BNaAKGnCfxPisZgw92jocWIuoVwFPMQ23PiVD0GGFIA+mL+sSWEUVJLCd2BQMXcPr1riI6DiN17RsHKVhOaRmWSQqOCYl1dSRnkpJglag2ix8FKcRm/2vy7sEh+O/whQHpdLrPXoCs2BNktaUNAFnFzmuqmAgCjxOZiUBRLFyytAE8Ew6jptMFicWNYVvjayDDFWWICYNDUZRtWxKE3gYkZc1BQ5KL5hJ79u34aD7MLj77r99zWekhoC0FM4p2dFuobinqWoBbr4JB8H3sli9NJopBQolSVOtr6kq/lacotuaKiH4CaM0RUO3WkBBNsDKfPpl+ZSqd4d3w0rvdZ/LFHiwBAI9ekHGxmni+cdVA8IS4s8UYN4GS8cNAydXtSkr8BZepUX8n4lkBbTQ7VRcSEFdKUBXLzepttEW2qiZlZVF+PMnuxrAP4q1X+C6YaV6alRA8D9+NFcRdCqjY/YnvPWCpcejwEueHn20nE85xan1nUAgEAgEAoFAIBAIBAKBQCAQCAQCgUAgEAgEAoFAIBAIBAKBQCAQCAQCgUAgEAgEAoHwV/kfJ4vpUDK2YPUAAAAASUVORK5CYII="
+    }
+  ];
+
+  const citiesFrom = [...new Set(tickets.map(t => t.from))];
+  const citiesTo = [...new Set(tickets.map(t => t.to))];
+
+  function autocomplete(inputElement, listElement, arr) {
+    inputElement.addEventListener('input', function() {
+      const val = this.value.toLowerCase();
+      listElement.innerHTML = '';
+      if (!val) {
+        listElement.style.display = 'none';
+        return;
+      }
+      const filtered = arr.filter(city => city.toLowerCase().startsWith(val));
+      if (filtered.length === 0) {
+        listElement.style.display = 'none';
+        return;
+      }
+      filtered.forEach(city => {
+        const item = document.createElement('div');
+        item.textContent = city;
+        item.addEventListener('click', function() {
+          inputElement.value = city;
+          listElement.innerHTML = '';
+          listElement.style.display = 'none';
+        });
+        listElement.appendChild(item);
+      });
+      listElement.style.display = 'block';
+    });
+
+    document.addEventListener('click', function(e) {
+      if (e.target !== inputElement) {
+        listElement.style.display = 'none';
+      }
+    });
+  }
+
+  autocomplete(document.getElementById('from'), document.getElementById('from-list'), citiesFrom);
+  autocomplete(document.getElementById('to'), document.getElementById('to-list'), citiesTo);
+
+  function bookTicket() {
+    const from = document.getElementById('from').value.trim();
+    const to = document.getElementById('to').value.trim();
+    const date = document.getElementById('date').value;
+    const resultBox = document.getElementById('ticket-result');
+
+    if (!from || !to || !date) {
+      alert("Mohon lengkapi semua data pemesanan!");
+      return;
+    }
+
+    const booking = { keberangkatan: from, tujuan: to, tanggal: date };
+    localStorage.setItem('pemesananPesawat', JSON.stringify(booking));
+
+    const filteredTickets = tickets.filter(ticket => 
+      ticket.from.toLowerCase() === from.toLowerCase() && 
+      ticket.to.toLowerCase() === to.toLowerCase()
+    );
+
+    let html = `<h4>Hasil Pencarian Tiket (${from} ➝ ${to}, ${date})</h4>`;
+
+    if (filteredTickets.length > 0) {
+      filteredTickets.forEach(ticket => {
+        html += `
+          <div class="ticket-card">
+            <img src="${ticket.foto}" alt="${ticket.maskapai}" width="100%" style="border-radius:5px; margin-bottom:10px;" />
+            <h4>${ticket.maskapai}</h4>
+            <p>Harga: ${ticket.harga}</p>
+            <p>Waktu: ${ticket.waktu}</p>
+            <button onclick='pilihTiket(${JSON.stringify(ticket)})'>Pilih Tiket</button>
+          </div>
+        `;
+      });
+    } else {
+      html += `<p style="color: red;">Maaf, tidak ada tiket tersedia untuk rute tersebut.</p>`;
+    }
+
+    resultBox.innerHTML = html;
+    resultBox.style.display = "block";
+  }
+
+  function pilihTiket(ticket) {
+    localStorage.setItem('tiketPesawatDipilih', JSON.stringify(ticket));
+    window.location.href = "registrasidatapenumpang.html";
+  }
+</script>
+
+</body>
+</html>
