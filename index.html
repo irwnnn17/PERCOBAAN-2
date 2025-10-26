@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelKu - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+        }
+        .content {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: red;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .logout-btn:hover {
+            background: darkred;
+        }
+        .search-box {
+            margin-bottom: 20px;
+        }
+        .custom-img {
+            max-width: 90px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .services {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+        }
+        .icon-box {
+            text-align: center;
+            cursor: pointer;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            width: 200px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .icon-box:hover {
+            background-color: #f9f9f9;
+        }
+        .icon-box div {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+        .help-section {
+            text-align: center;
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="login.html" class="logout-btn">Keluar <i class="fas fa-sign-out-alt"></i></a>
+
+    <!-- Logo -->
+    <div class="container text-center mt-3">
+        <img src="Gambar/LOGO TRAVEL KU.jpg" alt="Logo Travelku" class="img-fluid custom-img mb-3">
+    </div>
+
+    <!-- Header dan Pencarian -->
+    <div class="content text-center">
+        <header class="mb-4">
+            <h1 class="fw-bold">Travelku Jelajahi Dunia</h1>
+        </header>
+        
+        <div class="search-box">
+            <input type="text" id="search" class="form-control" placeholder="Cari tiket atau pemesanan...">
+            <button class="btn btn-primary mt-2" onclick="searchTicket()">Cari</button>
+        </div>
+    </div>
+
+    <!-- Layanan -->
+    <div class="services">
+        <div class="icon-box" onclick="location.href='PESAWAT/pemesananPesawat.html'">
+            <div>✈️</div>
+            <h3 class="fw-semibold">Tiket Pesawat</h3>
+            <p class="text-muted">Dapatkan tiket pesawat dengan harga terbaik.</p>
+        </div>
+        <div class="icon-box" onclick="location.href='HOTEL/PesanHotel.html'">
+            <div>🏨</div>
+            <h3 class="fw-semibold">Hotel & Penginapan</h3>
+            <p class="text-muted">Dapatkan tiket Hotel dengan harga terbaik.</p>
+        </div>
+        <div class="icon-box" onclick="location.href='SEWAMOBIL/SewaKendaraan.html'">
+            <div>🚌 🚗</div>
+            <h3 class="fw-semibold">Sewa Mobil</h3>
+            <p class="text-muted">Sewa mobil dan kendaraan lainnya dengan mudah.</p>
+        </div>
+        <div class="icon-box" onclick="location.href='TIKET/Tiket.html'">
+            <div>🎫</div>
+            <h3 class="fw-semibold">Tiket</h3>
+            <p class="text-muted">Tiket Bioskop, Konser, dan Wisata</p>
+        </div>
+    </div>
+
+    <!-- Promo -->
+    <div class="container mt-5">
+        <h2 class="text-center mb-4 fw-bold">Promo Menarik Untukmu!</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <img src="promo/promo1.jpg" class="card-img-top" alt="Promo 1">
+                    <div class="card-body">
+                        <h5 class="card-title">Diskon Tiket Pesawat 20%</h5>
+                        <p class="card-text">Terbang lebih hemat ke destinasi favoritmu. Berlaku hingga 30 Juni 2025.</p>
+                        <a href="PESAWAT/pemesananPesawat.html" class="btn btn-primary">Pesan Sekarang</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <img src="promo/promo2.jpg" class="card-img-top" alt="Promo 2">
+                    <div class="card-body">
+                        <h5 class="card-title">Hotel Diskon hingga 50%</h5>
+                        <p class="card-text">Nikmati penginapan mewah dengan harga terjangkau di kota-kota besar.</p>
+                        <a href="HOTEL/PesanHotel.html" class="btn btn-primary">Lihat Promo</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <img src="promo/promo3.jpg" class="card-img-top" alt="Promo 3">
+                    <div class="card-body">
+                        <h5 class="card-title">Sewa Mobil Gratis 1 Hari</h5>
+                        <p class="card-text">Sewa 3 hari, gratis 1 hari! Cocok untuk liburan atau perjalanan bisnis.</p>
+                        <a href="SEWAMOBIL/SewaKendaraan.html" class="btn btn-primary">Sewa Sekarang</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bantuan -->
+    <div class="help-section">
+        <h4>Kamu Butuh Bantuan?</h4>
+        <p>Tanya admin kami Chat Center.</p>
+        <a href="#">Klik di sini</a>
+    </div>
+
+    <!-- Script Pencarian -->
+    <script>
+        function searchTicket() {
+            let query = document.getElementById('search').value;
+            if (query) {
+                alert('Mencari: ' + query);
+            } else {
+                alert('Silakan masukkan kata kunci pencarian.');
+            }
+        }
+    </script>
+
+</body>
+</html>
